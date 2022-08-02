@@ -19,6 +19,7 @@ enum STATES {
 var currentState = STATES.run
 
 var currentSlideTimer = 0
+var currentShootTimer = 0
 
 onready var animatedSprite = $AnimatedSprite
 onready var normalCollisionShape = $NormalCollisionShape
@@ -65,6 +66,9 @@ func _runMovement(delta):
 
 		if Input.is_action_just_pressed("ui_jump"):
 			motion.y = -JUMP_FORCE
+			
+		if Input.is_action_just_pressed("ui_shoot"):
+			print("shoot")
 
 		if Input.is_action_just_pressed("ui_slide"):
 			motion = Vector2.ZERO

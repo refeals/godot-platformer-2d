@@ -178,7 +178,7 @@ disabled = true
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 position = Vector2( 0, -13 )
 frames = SubResource( 26 )
-animation = "Slide"
+animation = "Shoot"
 playing = true
 
 [node name="SlideRaycastLeft" type="RayCast2D" parent="."]
