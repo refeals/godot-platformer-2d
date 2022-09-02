@@ -6,6 +6,7 @@ const SLIDE_ACCELERATION = 100
 const MAX_SPEED = 80
 const SLIDE_SPEED = 180
 const SLIDE_TIMER = 0.43
+const LADDER_SPEED = 80
 const FRICTION = 30
 const GRAVITY = 10
 const JUMP_FORCE = 210
@@ -14,7 +15,8 @@ var motion = Vector2.ZERO
 
 enum STATES {
 	run,
-	slide
+	slide,
+	ladder
 }
 var currentState
 
@@ -38,12 +40,15 @@ func _physics_process(delta):
 	# var is_idling = is_on_floor() and is_zero_approx(motion.x)
 	# var is_running = is_on_floor() and not is_zero_approx(motion.x)
 
+
 	if (currentState == STATES.run): _runMovement(delta)
 	if (currentState == STATES.slide): _slideMovement(delta)
+	if (currentState == STATES.ladder): _ladderMovement()
 
 func _runMovement(delta):
 	normalCollisionShape.disabled = false
 	slideCollisionShape.disabled = true
+
 	var x_input = Input.get_axis("ui_left", "ui_right")
 
 	if x_input != 0:
@@ -60,6 +65,7 @@ func _runMovement(delta):
 
 	_applyGravity(delta)
 
+	# movement specific code
 	if is_on_floor():
 		if x_input == 0:
 			motion.x = lerp(motion.x, 0, FRICTION * delta)
@@ -82,13 +88,19 @@ func _runMovement(delta):
 		if x_input == 0:
 			motion.x = lerp(motion.x, 0, FRICTION * delta)
 
+	# movement agnostic code (works on floor or not)
+	if true: # is colliding with ladder
+		if Input.is_action_just_pressed("ui_up"):
+			motion = Vector2.ZERO
+			setCurrentState(STATES.ladder)
+
 	motion = move_and_slide(motion, Vector2.UP)
 
 func _slideMovement(delta):
 	normalCollisionShape.disabled = true
 	slideCollisionShape.disabled = false
 
-	var x_input = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
+	var x_input = Input.get_axis("ui_left", "ui_right")
 
 	var isNotCollidingAbove = !slideRaycastLeft.is_colliding() and !slideRaycastRight.is_colliding()
 
@@ -147,6 +159,15 @@ func _slideMovement(delta):
 
 	motion = move_and_slide(motion, Vector2.UP)
 
+func _ladderMovement():
+	var y_input = Input.get_axis("ui_up", "ui_down")
+	motion.y = y_input * LADDER_SPEED
+
+	motion = move_and_slide(motion, Vector2.UP)
+
+	if Input.is_action_just_pressed("ui_jump"):
+		setCurrentState(STATES.run)
+
 func setCurrentState(state):
 	print("Changed to: " + STATES.keys()[state])
 
@@ -155,6 +176,7 @@ func setCurrentState(state):
 		return
 
 	currentState = state
+	return currentState
 
 func _applyGravity(delta):
 	motion.y += GRAVITY * delta * TARGET_FPS
