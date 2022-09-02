@@ -16,7 +16,7 @@ enum STATES {
 	run,
 	slide
 }
-var currentState = STATES.run
+var currentState
 
 var currentSlideTimer = 0
 var currentShootTimer = 0
@@ -28,7 +28,7 @@ onready var slideRaycastLeft = $SlideRaycastLeft
 onready var slideRaycastRight = $SlideRaycastRight
 
 func _ready():
-	pass
+	currentState = STATES.run
 
 func _physics_process(delta):
 	# var is_falling = motion.y > 0.0 and not is_on_floor()
@@ -44,7 +44,7 @@ func _physics_process(delta):
 func _runMovement(delta):
 	normalCollisionShape.disabled = false
 	slideCollisionShape.disabled = true
-	var x_input = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
+	var x_input = Input.get_axis("ui_left", "ui_right")
 
 	if x_input != 0:
 		animatedSprite.flip_h = x_input < 0
@@ -58,7 +58,7 @@ func _runMovement(delta):
 	else:
 		animatedSprite.play("Idle")
 
-	motion.y += GRAVITY * delta * TARGET_FPS
+	_applyGravity(delta)
 
 	if is_on_floor():
 		if x_input == 0:
@@ -66,13 +66,13 @@ func _runMovement(delta):
 
 		if Input.is_action_just_pressed("ui_jump"):
 			motion.y = -JUMP_FORCE
-			
+
 		if Input.is_action_just_pressed("ui_shoot"):
 			print("shoot")
 
-		if Input.is_action_just_pressed("ui_slide"):
+		if Input.is_action_just_pressed("ui_slide") or (Input.is_action_pressed("ui_down") and Input.is_action_just_pressed("ui_jump")):
 			motion = Vector2.ZERO
-			currentState = STATES.slide
+			setCurrentState(STATES.slide)
 	else:
 		animatedSprite.play("Jump")
 
@@ -92,21 +92,17 @@ func _slideMovement(delta):
 
 	var isNotCollidingAbove = !slideRaycastLeft.is_colliding() and !slideRaycastRight.is_colliding()
 
-	var direction
-	if animatedSprite.flip_h:
-		direction = -1
-	else:
-		direction = 1
+	var direction = -1 if animatedSprite.flip_h else 1
 
 	if !is_on_floor():
-		currentState = STATES.run
+		setCurrentState(STATES.run)
 		currentSlideTimer = 0
 		motion.x = 0
 		return
 
-	if Input.is_action_just_pressed("ui_jump"):
+	if Input.is_action_just_pressed("ui_jump") and not Input.is_action_pressed("ui_down"):
 		if isNotCollidingAbove:
-			currentState = STATES.run
+			setCurrentState(STATES.run)
 			currentSlideTimer = 0
 			motion.x = 0
 			motion.y = -JUMP_FORCE
@@ -116,21 +112,21 @@ func _slideMovement(delta):
 
 	if currentSlideTimer > SLIDE_TIMER:
 		if isNotCollidingAbove:
-			currentState = STATES.run
+			setCurrentState(STATES.run)
 			currentSlideTimer = 0
 			motion.x = 0
 			return
 
 	if is_on_wall():
 		if isNotCollidingAbove:
-			currentState = STATES.run
+			setCurrentState(STATES.run)
 			currentSlideTimer = 0
 			motion.x = 0
 			return
 
 	if x_input != 0 and x_input != direction:
 		if isNotCollidingAbove:
-			currentState = STATES.run
+			setCurrentState(STATES.run)
 			currentSlideTimer = 0
 			motion.x = 0
 			return
@@ -150,3 +146,15 @@ func _slideMovement(delta):
 	motion.y = 1
 
 	motion = move_and_slide(motion, Vector2.UP)
+
+func setCurrentState(state):
+	print("Changed to: " + STATES.keys()[state])
+
+	if state >= STATES.size():
+		print("Invalid player state: " + str(state))
+		return
+
+	currentState = state
+
+func _applyGravity(delta):
+	motion.y += GRAVITY * delta * TARGET_FPS
