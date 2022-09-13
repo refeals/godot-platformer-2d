@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/mm2flashtilesettc0.png-43bf0c4a768291a50fe02498a55c3c5d.stex"
+path="res://.import/mm2flashtilesettc0.png-72e3df6461c731c6c62cbe0cd7e214fe.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://mm2flashtilesettc0.png"
-dest_files=[ "res://.import/mm2flashtilesettc0.png-43bf0c4a768291a50fe02498a55c3c5d.stex" ]
+source_file="res://sprites/mm2flashtilesettc0.png"
+dest_files=[ "res://.import/mm2flashtilesettc0.png-72e3df6461c731c6c62cbe0cd7e214fe.stex" ]
 
 [params]
 

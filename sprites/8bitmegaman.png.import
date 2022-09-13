@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/megabuster1.png-7489bae06ff8053ab1e24e3d98eb9fe0.stex"
+path="res://.import/8bitmegaman.png-6efb60c5ae3f8135e570ee6ceeb6a171.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://megabuster1.png"
-dest_files=[ "res://.import/megabuster1.png-7489bae06ff8053ab1e24e3d98eb9fe0.stex" ]
+source_file="res://sprites/8bitmegaman.png"
+dest_files=[ "res://.import/8bitmegaman.png-6efb60c5ae3f8135e570ee6ceeb6a171.stex" ]
 
 [params]
 
